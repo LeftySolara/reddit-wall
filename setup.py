@@ -15,7 +15,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
-        "Development Status :: 1 - Planning"
+        "Development Status :: 1 - Planning",
         "License :: OSI Approved :: MIT License",
         "Operating System :: POSIX :: Linux",
         "Environment :: Console",
