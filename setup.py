@@ -14,7 +14,7 @@ setuptools.setup(
     url="https://github.com/LeftySolara/reddit-wall",
     packages=setuptools.find_packages(),
     classifiers=[
-        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.5",
         "Development Status :: 1 - Planning",
         "License :: OSI Approved :: MIT License",
         "Operating System :: POSIX :: Linux",
