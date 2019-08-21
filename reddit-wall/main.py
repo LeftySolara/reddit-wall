@@ -1,6 +1,8 @@
 import configparser
 import os
+import pathlib
 import praw
+import requests
 import shutil
 
 
@@ -52,6 +54,42 @@ def get_subreddits(config, reddit):
     return subreddits
 
 
+def download_post_image(config, post):
+    """Download the image associated with the given reddit post."""
+
+    if post.is_self:
+        return False
+
+    # FIXME: Check file permissions when attempting to create directory
+    output_dir = pathlib.Path(config["Downloads"]["OutputDirectory"]).expanduser()
+    if str(output_dir) == '.':
+        output_dir = pathlib.Path.cwd()  # Get the absolute path
+    if not output_dir.exists():
+        output_dir.mkdir(parents=True)
+
+    image_types = (".png", ".jpg", ".jpeg", ".gif")
+    if not post.url.endswith(image_types):
+        return False
+
+    filename_start = post.url.rfind('/')
+    filename = post.url[filename_start:]
+
+    output_path = str(output_dir) + filename
+
+    with open(output_path, "wb") as handle:
+        response = requests.get(post.url, stream=True)
+        if not response.ok:
+            print(response)
+            return False
+        
+        for block in response.iter_content(1024):
+            if not block:
+                break
+            handle.write(block)
+
+    return True
+
+
 def main():
     """Main entry point of the program."""
 
@@ -72,11 +110,11 @@ def main():
             continue
         
         posts.append(submission)
-        if len(posts) >= limit:
+        if len(posts) > limit:
             break
 
     for post in posts:
-        print(post.title)
+        download_post_image(config, post)
 
 
 if __name__ == "__main__":
