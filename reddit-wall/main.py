@@ -61,7 +61,7 @@ def main():
 
     subreddits = get_subreddits(config, reddit)
     subs = reddit.subreddit('+'.join(subreddits))
-    limit = int(config["Downloads"]["ImageLimit"])
+    limit = int(config["Downloads"]["PostLimit"])
     allow_nsfw = config["Downloads"].getboolean("AllowNSFW")
 
     # There doesn't seem to be a way to specify a nsfw filter for subs.hot(),
