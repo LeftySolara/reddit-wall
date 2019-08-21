@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="reddit-wall",
-    version="0.0.1",
+    version="0.0.2",
     author="Jalen Adams",
     author_email="jalen@jalenkadams.me",
     description="Download wallpapers from subreddits and multireddits of your choosing.",
@@ -15,7 +15,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3.5",
-        "Development Status :: 1 - Planning",
+        "Development Status :: 2 - Pre-Alpha",
         "License :: OSI Approved :: MIT License",
         "Operating System :: POSIX :: Linux",
         "Environment :: Console",
