@@ -1,19 +1,19 @@
-import configparser
 import os
 import pathlib
 import praw
 import requests
 import shutil
+from config import CONFIG
 
 
-def get_subreddits(config, reddit):
-    """Get the list of subreddits from the given config.
-    
+def get_subreddits(reddit):
+    """Get a list of subreddit names.
+
+    If any multireddits are being searched, this function grabs the name of
+    each sub for the list.
+
     Parameters
     ----------
-    config : configparser.ConfigParser
-        The configuration to check.
-        
     reddit : praw.Reddit
         The reddit instance used to gather data.
 
@@ -24,8 +24,8 @@ def get_subreddits(config, reddit):
 
     """
 
-    allow_nsfw = config["Downloads"].getboolean("AllowNSFW")
-    subreddit_config = config.options("Subreddits")
+    allow_nsfw = CONFIG["Downloads"].getboolean("AllowNSFW")
+    subreddit_config = CONFIG.options("Subreddits")
     subreddits = []
 
     if not allow_nsfw:
@@ -34,13 +34,13 @@ def get_subreddits(config, reddit):
             if not sub.over18:
                 subreddits.append(sub.display_name)
     else:
-        subreddits = subreddit_names
+        subreddits = subreddit_config
 
     for sub in subreddits:
         sub = sub.lower()
 
 
-    multi_config = config.options("Multireddits")
+    multi_config = CONFIG.options("Multireddits")
     multi_list = [tuple(m.split()) for m in multi_config]
 
     for user, multi in multi_list:
@@ -54,14 +54,14 @@ def get_subreddits(config, reddit):
     return subreddits
 
 
-def download_post_image(config, post):
+def download_post_image(post):
     """Download the image associated with the given reddit post."""
 
     if post.is_self:
         return False
 
     # FIXME: Check file permissions when attempting to create directory
-    output_dir = pathlib.Path(config["Downloads"]["OutputDirectory"]).expanduser()
+    output_dir = pathlib.Path(CONFIG["Downloads"]["OutputDirectory"]).expanduser()
     if str(output_dir) == '.':
         output_dir = pathlib.Path.cwd()  # Get the absolute path
     if not output_dir.exists():
@@ -81,7 +81,7 @@ def download_post_image(config, post):
         if not response.ok:
             print(response)
             return False
-        
+
         for block in response.iter_content(1024):
             if not block:
                 break
@@ -93,14 +93,12 @@ def download_post_image(config, post):
 def main():
     """Main entry point of the program."""
 
-    config = configparser.ConfigParser(allow_no_value=True)
-    config.read(os.path.expanduser("~/.config/reddit-wall.conf"))
     reddit = praw.Reddit("reddit-wall")
 
-    subreddits = get_subreddits(config, reddit)
+    subreddits = get_subreddits(reddit)
     subs = reddit.subreddit('+'.join(subreddits))
-    limit = int(config["Downloads"]["PostLimit"])
-    allow_nsfw = config["Downloads"].getboolean("AllowNSFW")
+    limit = int(CONFIG["Downloads"]["PostLimit"])
+    allow_nsfw = CONFIG["Downloads"].getboolean("AllowNSFW")
 
     # There doesn't seem to be a way to specify a nsfw filter for subs.hot(),
     # so we have to keep track of when we skip posts.
@@ -114,13 +112,8 @@ def main():
             break
 
     for post in posts:
-        download_post_image(config, post)
+        download_post_image(post)
 
 
 if __name__ == "__main__":
-    # Check if the config file exists. If not, copy the default.
-    config_path = os.path.join(os.path.expanduser('~'), ".config/reddit-wall.conf")
-    if not os.path.exists(config_path):
-        shutil.copyfile("../reddit-wall.conf", config_path)
-
     main()
