@@ -3,6 +3,7 @@ import pathlib
 import praw
 import requests
 import shutil
+from imgurdownloader import ImgurDownloader
 from config import CONFIG
 
 
@@ -111,8 +112,12 @@ def main():
         if len(posts) > limit:
             break
 
+    imgur = ImgurDownloader()
     for post in posts:
-        download_post_image(post)
+        if "imgur.com/a/" in post.url:
+            imgur.download_album(post.url)
+        else:
+            download_post_image(post)
 
 
 if __name__ == "__main__":
