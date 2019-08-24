@@ -15,7 +15,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     entry_points={
         "console_scripts": [
-            "reddit-wall=reddit-wall.main:main"
+            "reddit-wall=main:main"
         ]
     },
     classifiers=[
